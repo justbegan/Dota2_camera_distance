@@ -1,5 +1,9 @@
 from pymem import Pymem
 from pymem.process import module_from_name
+from requests import get
+
+
+process_address = get("")
 
 
 process = 0x4581938
