@@ -1,4 +1,0 @@
-pyinstaller==6.4.0
-pywin32-ctypes==0.2.2
-Pymem==1.13.1
-requests==2.31.0
