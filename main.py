@@ -2,12 +2,14 @@ from pymem import Pymem
 from pymem.process import module_from_name
 from requests import get
 
+try:
+    process_address = get("https://raw.githubusercontent.com/justbegan/Dota2_camera_distance/master/data.json")
+except Exception as e:
+    raise Exception(e)
 
-process_address = get("")
-
-
-process = 0x4581938
-var = float(input("Distance:",))
+data = f"0x{process_address.json()['address']}"
+process = int(data, 16)
+var = float(input("Distance:"))
 
 
 try:
