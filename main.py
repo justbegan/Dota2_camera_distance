@@ -1,21 +1,44 @@
 from pymem import Pymem
 from pymem.process import module_from_name
-from requests import get
-
-try:
-    process_address = get("https://raw.githubusercontent.com/justbegan/Dota2_camera_distance/master/data.json")
-except Exception as e:
-    raise Exception(e)
-
-data = f"0x{process_address.json()['address']}"
-process = int(data, 16)
-var = float(input("Distance:"))
+from pymem.exception import MemoryReadError
+import struct
 
 
-try:
-    mem = Pymem("dota2.exe")
-    game_module = module_from_name(mem.process_handle, "client.dll").lpBaseOfDll
-    mem.write_float(game_module + process, var)
-    print("Successful")
-except Exception as e:
-    print(f"error {e}")
+def find_value_in_module():
+    process_name = "dota2.exe"
+    module_name = "client.dll" 
+    value_type = 'float'
+    target_value = 1200.0
+    pm = Pymem(process_name)
+    module = module_from_name(pm.process_handle, module_name)
+    base_address = module.lpBaseOfDll
+    module_size = module.SizeOfImage
+
+    if value_type == 'float':
+        target_value = float(target_value)
+        bytes_to_read = 4
+        format_string = 'f'
+    else:
+        raise ValueError("Unsupported value type. Use 'float'.")
+    addresses = []
+    print("in progress")
+    for address in range(base_address, base_address + module_size, bytes_to_read):
+        try:
+            bytes = pm.read_bytes(address, bytes_to_read)
+            read_value = struct.unpack(format_string, bytes)[0]
+            if read_value == target_value:
+                addresses.append(address)
+        except (MemoryReadError, struct.error):
+            pass
+
+    return [addr for addr in addresses]
+
+
+for i in find_value_in_module():
+    var = float(input("Distance:"))
+    try:
+        mem = Pymem("dota2.exe")
+        mem.write_float(i, var)
+        print("Successful")
+    except Exception as e:
+        print(f"error {e}")
