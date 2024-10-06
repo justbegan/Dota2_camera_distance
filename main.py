@@ -2,11 +2,15 @@ from pymem import Pymem
 from pymem.process import module_from_name
 from pymem.exception import MemoryReadError
 import struct
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 def find_value_in_module():
     process_name = "dota2.exe"
-    module_name = "client.dll" 
+    module_name = "client.dll"
     value_type = 'float'
     target_value = 1200.0
     pm = Pymem(process_name)
@@ -21,7 +25,7 @@ def find_value_in_module():
     else:
         raise ValueError("Unsupported value type. Use 'float'.")
     addresses = []
-    print("in progress")
+    print("in progress...")
     for address in range(base_address, base_address + module_size, bytes_to_read):
         try:
             bytes = pm.read_bytes(address, bytes_to_read)
@@ -35,7 +39,7 @@ def find_value_in_module():
 
 
 for i in find_value_in_module():
-    var = float(input("Distance:"))
+    var = float(os.getenv("distance"))
     try:
         mem = Pymem("dota2.exe")
         mem.write_float(i, var)
